@@ -1,4 +1,4 @@
-class BST {
+/* class BST {
   constructor(value) {
     this.value = value;
     this.leftLeaf = null;
@@ -58,3 +58,4 @@ class BST {
     else return this.value;
   }
 }
+ */
