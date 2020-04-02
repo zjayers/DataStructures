@@ -1,63 +1,69 @@
 class HashTable {
   constructor(size) {
-    this.buckets = Array(size);
-    this.numBuckets = this.buckets.length;
+    this.data = new Array(size);
   }
-  hash(key) {
-    var total = 0;
-    for (var i = 0; i < key.length; i++) {
-      total += key.charCodeAt(i);
+
+  _hash(key) {
+    let hash = 0;
+    for (let i = 0; i < key.length; i++) {
+      hash = (hash + key.charCodeAt(i) * i) % this.data.length;
     }
-    var bucket = total % this.numBuckets;
-    return bucket;
+
+    return hash;
   }
-  insert(key, value) {
-    var index = this.hash(key);
-    if (!this.buckets[index]) {
-      this.buckets[index] = new HashNode(key, value);
-    } else if (this.buckets[index].key === key) {
-      this.buckets[index].value = value;
-    } else {
-      var currentNode = this.buckets[index];
-      while (currentNode.next) {
-        if (currentNode.next.key === key) {
-          currentNode.next.value = value;
-          return;
-        }
-        currentNode = currentNode.next;
-      }
-      currentNode.next = new HashNode(key, value);
+
+  set(key, value) {
+    const address = this._hash(key);
+
+    if (!this.data[address]) {
+      this.data[address] = [];
     }
+
+    this.data[address].push([key, value]);
   }
+
   get(key) {
-    var index = this.hash(key);
-    if (!this.buckets[index]) return null;
-    else {
-      var currentNode = this.buckets[index];
-      while (currentNode) {
-        if (currentNode.key === key) return currentNode.value;
-        currentNode = currentNode.next;
+    const address = this._hash(key);
+    const currentBucket = this.data[address];
+
+    if (currentBucket) {
+      for (let i = 0; i < currentBucket.length; i++) {
+        if (currentBucket[i][0] === key) return currentBucket[i][1];
       }
-      return null;
     }
+
+    return undefined;
   }
-  retrieveAll() {
-    var allNodes = [];
-    for (var i = 0; i < this.numBuckets; i++) {
-      var currentNode = this.buckets[i];
-      while (currentNode) {
-        allNodes.push(currentNode);
-        currentNode = currentNode.next;
+
+  keys() {
+    if (!this.data.length) {
+      return undefined;
+    }
+    let result = [];
+    // loop through all the elements
+    for (let i = 0; i < this.data.length; i++) {
+      // if it's not an empty memory cell
+      if (this.data[i] && this.data[i].length) {
+        // but also loop through all the potential collisions
+        if (this.data.length > 1) {
+          for (let j = 0; j < this.data[i].length; j++) {
+            result.push(this.data[i][j][0]);
+          }
+        } else {
+          result.push(this.data[i][0]);
+        }
       }
     }
-    return allNodes;
+    return result;
   }
 }
 
-class HashNode {
-  constructor(key, value, next) {
-    this.key = key;
-    this.value = value;
-    this.next = next || null;
-  }
-}
+const hashTable = new HashTable(50);
+hashTable.set("grapes", 100);
+hashTable.set("apples", 54);
+hashTable.set("oranges", 2);
+hashTable.set("bananas", 5);
+hashTable.set("carrots", 1);
+
+console.log(hashTable);
+console.log(hashTable.get("grapes"));

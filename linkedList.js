@@ -1,67 +1,133 @@
 class LinkedList {
-  constructor() {
-    this.head = null;
-    this.tail = null;
+  constructor(value) {
+    this.head = {
+      value,
+      next: null,
+      prev: null
+    };
+
+    this.tail = this.head;
+    this.length = 1;
   }
 
-  addToHead(value) {
-    const newNode = new Node(value, this.head, null);
-    if (this.head) this.head.prev = newNode;
-    else this.tail = newNode;
-    this.head = newNode;
-  }
+  append(value) {
+    const newNode = new Node(value);
 
-  addToTail(value) {
-    const newNode = new Node(value, null, this.tail);
-    if (this.tail) this.tail.next = newNode;
-    else this.head = newNode;
+    newNode.prev = this.tail;
+    this.tail.next = newNode;
     this.tail = newNode;
+    this.length++;
+    return this;
   }
 
-  removeHead() {
-    if (!this.head) return null;
-    const val = this.head.value;
-    this.head = this.head.next;
-    if (this.head) this.head.prev = null;
-    else this.tail = null;
-    return val;
+  prepend(value) {
+    const newNode = new Node(value);
+
+    newNode.next = this.head;
+    this.head.prev = newNode;
+    this.head = newNode;
+    this.length++;
+    return this;
   }
 
-  removeTail() {
-    if (!this.tail) return null;
-    const val = this.tail.value;
-    this.tail = this.tail.prev;
-    if (this.tail) this.tail.next = null;
-    else this.head = null;
-    return val;
-  }
-
-  search(searchVal) {
+  traverseToIndex(index) {
+    let counter = 0;
     let currentNode = this.head;
-    while (currentNode) {
-      if (currentNode.value === searchVal) return currentNode.value;
+
+    while (counter !== index) {
+      currentNode = currentNode.next;
+      counter++;
+    }
+
+    return currentNode;
+  }
+
+  insert(index, value) {
+    // Check Params
+
+    if (index === 0) {
+      return this.prepend(value);
+    } else if (index >= this.length) {
+      return this.append(value);
+    }
+
+    const newNode = new Node(value);
+
+    const leaderNode = this.traverseToIndex(index - 1);
+
+    const followerNode = leaderNode.next;
+
+    leaderNode.next = newNode;
+    newNode.next = followerNode;
+    newNode.prev = leaderNode;
+    followerNode.prev = newNode;
+
+    this.length++;
+    return this;
+  }
+
+  remove(index) {
+    if (index >= this.length) {
+      index = this.length - 1;
+    }
+
+    const leaderNode = this.traverseToIndex(index - 1);
+    const nodeToRemove = leaderNode.next;
+
+    leaderNode.next = nodeToRemove.next;
+    nodeToRemove.next.prev = leaderNode;
+
+    this.length--;
+    return this;
+  }
+
+  reverse() {
+    if (!this.head.next) return this;
+
+    let firstNode = this.head;
+    this.tail = this.head;
+    let secondNode = firstNode.next;
+
+    while (secondNode) {
+      const tempNode = secondNode.next;
+      secondNode.next = firstNode;
+      firstNode = secondNode;
+      secondNode = tempNode;
+    }
+
+    this.head.next = null;
+    this.head = firstNode;
+
+    return this;
+  }
+
+  print() {
+    const array = [];
+    let currentNode = this.head;
+
+    while (currentNode !== null) {
+      array.push(currentNode.value);
       currentNode = currentNode.next;
     }
-    return null;
-  }
-
-  indexOf(searchVal) {
-    let currentNode = this.head;
-    const indexes = [];
-    let curIndex = 0;
-    while (currentNode) {
-      if (currentNode.value === searchVal) indexes.push(curIndex);
-      currentNode = currentNode.next;
-      curIndex++;
-    }
-    return indexes;
+    console.log(array);
   }
 }
 
 class Node {
-  constructor(value, next, prev) {
+  constructor(value) {
     this.value = value;
-    this.next = next;
-    this.prev = prev;
+    this.next = null;
+    this.prev = null;
   }
 }
+
+const linkedList = new LinkedList(10);
+linkedList.append(5);
+linkedList.append(16);
+linkedList.prepend(1);
+linkedList.insert(1, 99);
+linkedList.reverse();
+
+//linkedList.remove(2);
+
+linkedList.print();
